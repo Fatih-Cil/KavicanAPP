@@ -1,4 +1,4 @@
-// Yaz Tatili Ders Programı JavaScript - JSON Dosyası ile
+// Yaz Tatili Ders Programı JavaScript - Sadece JSON Dosyası ile
 
 class StudyProgram {
     constructor() {
@@ -90,6 +90,7 @@ class StudyProgram {
         this.renderDays();
         this.setupEventListeners();
         this.modal = new bootstrap.Modal(document.getElementById('dayModal'));
+        this.addDataButtons();
     }
 
     async loadData() {
@@ -127,7 +128,7 @@ class StudyProgram {
         });
     }
 
-    async saveData(dayId) {
+    saveData(dayId) {
         const day = this.days.find(d => d.id === dayId);
         if (!day) return;
 
@@ -140,13 +141,130 @@ class StudyProgram {
             };
         });
 
-        // LocalStorage'a kaydet (geçici çözüm)
-        localStorage.setItem('kavicanData', JSON.stringify(allData));
-        
         // Kullanıcıya bilgi ver
-        this.showNotification('Veriler kaydedildi! (LocalStorage)', 'success');
+        this.showNotification('Veriler güncellendi! JSON dosyasını manuel güncelleyin.', 'info');
         
-        console.log('Veriler LocalStorage\'a kaydedildi. Farklı browserlarda senkronizasyon için manuel güncelleme gerekli.');
+        console.log('Güncel veriler:', allData);
+        console.log('JSON dosyasını manuel olarak güncelleyin veya export/import kullanın.');
+    }
+
+    addDataButtons() {
+        // Header'a veri yönetimi butonları ekle
+        const header = document.querySelector('header');
+        const buttonContainer = document.createElement('div');
+        buttonContainer.className = 'mt-3';
+        buttonContainer.innerHTML = `
+            <button class="btn btn-success btn-sm me-2" onclick="studyProgram.exportData()">
+                <i class="fas fa-download"></i> Verileri İndir
+            </button>
+            <button class="btn btn-warning btn-sm me-2" onclick="studyProgram.importData()">
+                <i class="fas fa-upload"></i> Verileri Yükle
+            </button>
+            <button class="btn btn-info btn-sm" onclick="studyProgram.showCurrentData()">
+                <i class="fas fa-eye"></i> Mevcut Veriler
+            </button>
+        `;
+        header.appendChild(buttonContainer);
+    }
+
+    exportData() {
+        const allData = {};
+        this.days.forEach(day => {
+            allData[day.id] = {
+                entries: day.entries,
+                completed: day.completed
+            };
+        });
+
+        const dataStr = JSON.stringify(allData, null, 2);
+        const dataBlob = new Blob([dataStr], {type: 'application/json'});
+        const url = URL.createObjectURL(dataBlob);
+        
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = 'kavican_data.json';
+        link.click();
+        
+        URL.revokeObjectURL(url);
+        this.showNotification('Veriler indirildi!', 'success');
+    }
+
+    importData() {
+        const input = document.createElement('input');
+        input.type = 'file';
+        input.accept = '.json';
+        
+        input.onchange = (e) => {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = (event) => {
+                    try {
+                        const importedData = JSON.parse(event.target.result);
+                        
+                        // Verileri güncelle
+                        this.days.forEach(day => {
+                            if (importedData[day.id]) {
+                                day.entries = importedData[day.id].entries || [];
+                                day.completed = importedData[day.id].completed || false;
+                            }
+                        });
+                        
+                        this.renderDays();
+                        this.showNotification('Veriler başarıyla yüklendi!', 'success');
+                    } catch (error) {
+                        this.showNotification('Dosya okuma hatası!', 'danger');
+                    }
+                };
+                reader.readAsText(file);
+            }
+        };
+        
+        input.click();
+    }
+
+    showCurrentData() {
+        const allData = {};
+        this.days.forEach(day => {
+            allData[day.id] = {
+                entries: day.entries,
+                completed: day.completed
+            };
+        });
+
+        const dataStr = JSON.stringify(allData, null, 2);
+        
+        // Modal oluştur
+        const modal = document.createElement('div');
+        modal.className = 'modal fade';
+        modal.innerHTML = `
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Mevcut Veriler</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <p class="text-muted">Bu verileri kopyalayıp study_data.json dosyasına yapıştırabilirsiniz:</p>
+                        <textarea class="form-control" rows="20" readonly>${dataStr}</textarea>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Kapat</button>
+                        <button type="button" class="btn btn-primary" onclick="navigator.clipboard.writeText('${dataStr.replace(/'/g, "\\'")}').then(() => studyProgram.showNotification('Veriler kopyalandı!', 'success'))">
+                            <i class="fas fa-copy"></i> Kopyala
+                        </button>
+                    </div>
+                </div>
+            </div>
+        `;
+        
+        document.body.appendChild(modal);
+        const bootstrapModal = new bootstrap.Modal(modal);
+        bootstrapModal.show();
+        
+        modal.addEventListener('hidden.bs.modal', () => {
+            document.body.removeChild(modal);
+        });
     }
 
     renderDays() {
@@ -358,10 +476,10 @@ class StudyProgram {
     showNotification(message, type = 'info') {
         // Basit bir bildirim sistemi
         const notification = document.createElement('div');
-        notification.className = `alert alert-${type === 'success' ? 'success' : type === 'warning' ? 'warning' : 'info'} position-fixed`;
+        notification.className = `alert alert-${type === 'success' ? 'success' : type === 'warning' ? 'warning' : type === 'danger' ? 'danger' : 'info'} position-fixed`;
         notification.style.cssText = 'top: 20px; right: 20px; z-index: 9999; min-width: 300px;';
         notification.innerHTML = `
-            <i class="fas fa-${type === 'success' ? 'check-circle' : type === 'warning' ? 'exclamation-triangle' : 'info-circle'}"></i>
+            <i class="fas fa-${type === 'success' ? 'check-circle' : type === 'warning' ? 'exclamation-triangle' : type === 'danger' ? 'times-circle' : 'info-circle'}"></i>
             ${message}
         `;
         
@@ -373,9 +491,12 @@ class StudyProgram {
     }
 }
 
+// Global değişken
+let studyProgram;
+
 // Sayfa yüklendiğinde uygulamayı başlat
 document.addEventListener('DOMContentLoaded', () => {
-    new StudyProgram();
+    studyProgram = new StudyProgram();
 });
 
 // Ek özellikler
