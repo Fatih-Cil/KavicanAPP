@@ -1,4 +1,4 @@
-// Yaz Tatili Ders Programı JavaScript - GitHub Issues API ile
+// Yaz Tatili Ders Programı JavaScript - JSON Dosyası ile
 
 class StudyProgram {
     constructor() {
@@ -82,7 +82,6 @@ class StudyProgram {
         
         this.currentDay = null;
         this.modal = null;
-        this.dataIssueId = null;
         this.init();
     }
 
@@ -95,61 +94,29 @@ class StudyProgram {
 
     async loadData() {
         try {
-            // Önce mevcut data issue'yu bul
-            await this.findDataIssue();
-            
-            if (this.dataIssueId) {
-                // Issue'dan veri çek
-                const response = await fetch(`https://api.github.com/repos/Fatih-Cil/KavicanAPP/issues/${this.dataIssueId}`);
-                if (response.ok) {
-                    const issue = await response.json();
-                    const dataContent = issue.body;
-                    if (dataContent) {
-                        try {
-                            const serverData = JSON.parse(dataContent);
-                            
-                            this.days.forEach(day => {
-                                if (serverData[day.id]) {
-                                    day.entries = serverData[day.id].entries || [];
-                                    day.completed = serverData[day.id].completed || false;
-                                } else {
-                                    day.entries = [];
-                                    day.completed = false;
-                                }
-                            });
-                            
-                            console.log('Veriler GitHub Issue\'dan yüklendi');
-                        } catch (parseError) {
-                            console.log('Veri parse hatası:', parseError);
-                            this.initializeEmptyData();
-                        }
+            // JSON dosyasından veri yükle
+            const response = await fetch('study_data.json');
+            if (response.ok) {
+                const serverData = await response.json();
+                
+                this.days.forEach(day => {
+                    if (serverData[day.id]) {
+                        day.entries = serverData[day.id].entries || [];
+                        day.completed = serverData[day.id].completed || false;
+                    } else {
+                        day.entries = [];
+                        day.completed = false;
                     }
-                }
+                });
+                
+                console.log('Veriler JSON dosyasından yüklendi');
             } else {
-                // Data issue yoksa boş verilerle başlat
+                console.log('JSON dosyası bulunamadı, boş verilerle başlatılıyor');
                 this.initializeEmptyData();
             }
         } catch (error) {
             console.log('Veri yükleme hatası:', error);
             this.initializeEmptyData();
-        }
-    }
-
-    async findDataIssue() {
-        try {
-            // Tüm issue'ları listele
-            const response = await fetch('https://api.github.com/repos/Fatih-Cil/KavicanAPP/issues?state=open');
-            if (response.ok) {
-                const issues = await response.json();
-                // "Kavican Data" başlıklı issue'yu bul
-                const dataIssue = issues.find(issue => issue.title === 'Kavican Data');
-                if (dataIssue) {
-                    this.dataIssueId = dataIssue.number;
-                    console.log('Data issue bulundu:', this.dataIssueId);
-                }
-            }
-        } catch (error) {
-            console.log('Issue arama hatası:', error);
         }
     }
 
@@ -173,69 +140,13 @@ class StudyProgram {
             };
         });
 
-        // GitHub'a kaydet
-        await this.saveToGitHub(allData);
-    }
-
-    async saveToGitHub(data) {
-        try {
-            if (!this.dataIssueId) {
-                // İlk kez, yeni issue oluştur
-                await this.createDataIssue(data);
-            } else {
-                // Mevcut issue'yu güncelle
-                await this.updateDataIssue(data);
-            }
-        } catch (error) {
-            console.log('GitHub kaydetme hatası:', error);
-            this.showNotification('Veri kaydedilemedi, tekrar deneyin!', 'warning');
-        }
-    }
-
-    async createDataIssue(data) {
-        try {
-            const response = await fetch('https://api.github.com/repos/Fatih-Cil/KavicanAPP/issues', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    title: 'Kavican Data',
-                    body: JSON.stringify(data, null, 2),
-                    labels: ['data']
-                })
-            });
-
-            if (response.ok) {
-                const issue = await response.json();
-                this.dataIssueId = issue.number;
-                console.log('Yeni data issue oluşturuldu:', this.dataIssueId);
-                this.showNotification('Veriler kaydedildi!', 'success');
-            }
-        } catch (error) {
-            console.log('Issue oluşturma hatası:', error);
-        }
-    }
-
-    async updateDataIssue(data) {
-        try {
-            const response = await fetch(`https://api.github.com/repos/Fatih-Cil/KavicanAPP/issues/${this.dataIssueId}`, {
-                method: 'PATCH',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    body: JSON.stringify(data, null, 2)
-                })
-            });
-
-            if (response.ok) {
-                console.log('Data issue güncellendi');
-                this.showNotification('Veriler güncellendi!', 'success');
-            }
-        } catch (error) {
-            console.log('Issue güncelleme hatası:', error);
-        }
+        // LocalStorage'a kaydet (geçici çözüm)
+        localStorage.setItem('kavicanData', JSON.stringify(allData));
+        
+        // Kullanıcıya bilgi ver
+        this.showNotification('Veriler kaydedildi! (LocalStorage)', 'success');
+        
+        console.log('Veriler LocalStorage\'a kaydedildi. Farklı browserlarda senkronizasyon için manuel güncelleme gerekli.');
     }
 
     renderDays() {
