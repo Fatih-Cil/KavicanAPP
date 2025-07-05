@@ -1,0 +1,349 @@
+/* Çocuk dostu yaz tatili ders programı CSS */
+
+:root {
+    --primary-color: #FF6B6B;
+    --secondary-color: #4ECDC4;
+    --accent-color: #45B7D1;
+    --success-color: #96CEB4;
+    --warning-color: #FFEAA7;
+    --danger-color: #DDA0DD;
+    --light-color: #F8F9FA;
+    --dark-color: #343A40;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Fredoka', sans-serif;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    min-height: 100vh;
+    padding: 20px 0;
+}
+
+/* Header Styles */
+.main-title {
+    color: white;
+    font-size: 2.5rem;
+    font-weight: 700;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+    margin-bottom: 10px;
+    animation: bounce 2s infinite;
+}
+
+.subtitle {
+    color: rgba(255,255,255,0.9);
+    font-size: 1.2rem;
+    font-weight: 400;
+}
+
+/* Day Card Styles */
+.day-card {
+    background: white;
+    border-radius: 20px;
+    padding: 25px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    transition: all 0.3s ease;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+    min-height: 200px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.day-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 5px;
+    background: linear-gradient(90deg, var(--primary-color), var(--secondary-color), var(--accent-color));
+}
+
+.day-card:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+}
+
+.day-card:active {
+    transform: translateY(-5px);
+}
+
+.day-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 15px;
+}
+
+.day-name {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--dark-color);
+    margin: 0;
+}
+
+.day-icon {
+    font-size: 2rem;
+    color: var(--primary-color);
+}
+
+.day-content {
+    flex-grow: 1;
+}
+
+.day-tasks {
+    font-size: 0.9rem;
+    color: #666;
+    line-height: 1.4;
+}
+
+.day-footer {
+    margin-top: 15px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.completion-status {
+    font-size: 0.8rem;
+    padding: 5px 10px;
+    border-radius: 15px;
+    font-weight: 500;
+}
+
+.status-pending {
+    background-color: var(--warning-color);
+    color: #856404;
+}
+
+.status-completed {
+    background-color: var(--success-color);
+    color: #155724;
+}
+
+.entry-count {
+    background-color: var(--accent-color);
+    color: white;
+    border-radius: 50%;
+    width: 25px;
+    height: 25px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.7rem;
+    font-weight: bold;
+}
+
+/* Modal Styles */
+.modal-content {
+    border-radius: 20px;
+    border: none;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+}
+
+.modal-header {
+    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+    color: white;
+    border-radius: 20px 20px 0 0;
+    border: none;
+}
+
+.modal-title {
+    font-weight: 600;
+}
+
+.task-list {
+    background-color: #f8f9fa;
+    padding: 15px;
+    border-radius: 10px;
+    border-left: 4px solid var(--primary-color);
+}
+
+.task-item {
+    margin-bottom: 8px;
+    padding: 8px;
+    background: white;
+    border-radius: 8px;
+    border-left: 3px solid var(--secondary-color);
+}
+
+.diary-section {
+    background-color: #fff3cd;
+    padding: 20px;
+    border-radius: 15px;
+    border: 2px solid var(--warning-color);
+}
+
+.diary-entries {
+    max-height: 300px;
+    overflow-y: auto;
+}
+
+.diary-entry {
+    background: white;
+    padding: 15px;
+    margin-bottom: 10px;
+    border-radius: 10px;
+    border-left: 4px solid var(--success-color);
+    position: relative;
+}
+
+.entry-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+}
+
+.entry-date {
+    font-size: 0.8rem;
+    color: #666;
+    font-weight: 500;
+}
+
+.entry-actions {
+    display: flex;
+    gap: 5px;
+}
+
+.btn-sm {
+    padding: 2px 6px;
+    font-size: 0.7rem;
+}
+
+.entry-content {
+    color: #333;
+    line-height: 1.4;
+}
+
+/* Button Styles */
+.btn {
+    border-radius: 25px;
+    font-weight: 500;
+    padding: 10px 20px;
+    transition: all 0.3s ease;
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+    border: none;
+}
+
+.btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+}
+
+.btn-success {
+    background: var(--success-color);
+    border: none;
+    color: #155724;
+}
+
+.btn-danger {
+    background: var(--danger-color);
+    border: none;
+    color: #721c24;
+}
+
+.btn-warning {
+    background: var(--warning-color);
+    border: none;
+    color: #856404;
+}
+
+/* Animations */
+@keyframes bounce {
+    0%, 20%, 50%, 80%, 100% {
+        transform: translateY(0);
+    }
+    40% {
+        transform: translateY(-10px);
+    }
+    60% {
+        transform: translateY(-5px);
+    }
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.day-card {
+    animation: fadeInUp 0.6s ease forwards;
+}
+
+.day-card:nth-child(1) { animation-delay: 0.1s; }
+.day-card:nth-child(2) { animation-delay: 0.2s; }
+.day-card:nth-child(3) { animation-delay: 0.3s; }
+.day-card:nth-child(4) { animation-delay: 0.4s; }
+.day-card:nth-child(5) { animation-delay: 0.5s; }
+.day-card:nth-child(6) { animation-delay: 0.6s; }
+.day-card:nth-child(7) { animation-delay: 0.7s; }
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .main-title {
+        font-size: 2rem;
+    }
+    
+    .day-card {
+        margin-bottom: 20px;
+    }
+    
+    .day-name {
+        font-size: 1.3rem;
+    }
+    
+    .day-icon {
+        font-size: 1.5rem;
+    }
+}
+
+/* Scrollbar Styling */
+::-webkit-scrollbar {
+    width: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--primary-color);
+    border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--secondary-color);
+}
+
+/* Loading Animation */
+.loading {
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    border: 3px solid rgba(255,255,255,.3);
+    border-radius: 50%;
+    border-top-color: #fff;
+    animation: spin 1s ease-in-out infinite;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+} 
