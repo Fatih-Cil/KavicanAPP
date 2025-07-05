@@ -25,6 +25,26 @@ body {
 }
 
 /* Header Styles */
+.avatar-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.avatar-img {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    border: 4px solid white;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+    object-fit: cover;
+    transition: transform 0.3s ease;
+}
+
+.avatar-img:hover {
+    transform: scale(1.1);
+}
+
 .main-title {
     color: white;
     font-size: 2.5rem;
@@ -297,6 +317,11 @@ body {
 
 /* Responsive Design */
 @media (max-width: 768px) {
+    .avatar-img {
+        width: 60px;
+        height: 60px;
+    }
+    
     .main-title {
         font-size: 2rem;
     }
