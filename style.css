@@ -39,7 +39,7 @@ body {
     box-shadow: 0 4px 15px rgba(0,0,0,0.2);
     object-fit: cover;
     transition: transform 0.3s ease;
-    /* Cache busting için yorum eklendi */
+    /* Cache busting için yorum eklendi - Force update */
 }
 
 .avatar-img:hover {
