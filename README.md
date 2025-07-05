@@ -7,7 +7,7 @@ Eğlenceli ve verimli bir yaz tatili için hazırlanmış web uygulaması.
 - 📅 7 günlük renkli kartlar
 - 📝 Günlük kayıt sistemi
 - ✅ Tamamlama durumu takibi
-- 💾 GitHub Issues API ile veri saklama
+- 💾 localStorage ile yerel veri saklama
 - 📱 Mobil uyumlu tasarım
 
 ## Kullanım
@@ -23,12 +23,20 @@ Eğlenceli ve verimli bir yaz tatili için hazırlanmış web uygulaması.
 - CSS3 (Bootstrap 5)
 - JavaScript (ES6+)
 - FontAwesome Icons
-- GitHub Issues API
+- localStorage API
 
-## Erişim
+## Yerel Çalıştırma
 
-Uygulamaya şu adresten erişebilirsiniz: https://fatih-cil.github.io/KavicanAPP
+1. Dosyaları bilgisayarınıza indirin
+2. `index.html` dosyasını web tarayıcınızda açın
+3. Veriler otomatik olarak tarayıcınızın localStorage'ında saklanacak
+
+## Veri Güvenliği
+
+- Tüm veriler tarayıcınızın localStorage'ında saklanır
+- Veriler sadece sizin bilgisayarınızda tutulur
+- İnternet bağlantısı gerektirmez
 
 ---
 
-**Not:** Bu uygulama GitHub Pages üzerinde çalışmaktadır ve veriler GitHub Issues API kullanılarak saklanmaktadır. 
+**Not:** Bu uygulama tamamen yerel olarak çalışır ve veriler tarayıcınızın localStorage'ında saklanır. 

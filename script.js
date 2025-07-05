@@ -1,4 +1,4 @@
-// Yaz Tatili Ders Programı JavaScript - Sadece JSON Dosyası ile
+// Yaz Tatili Ders Programı JavaScript - localStorage ile
 
 class StudyProgram {
     constructor() {
@@ -82,23 +82,25 @@ class StudyProgram {
         
         this.currentDay = null;
         this.modal = null;
+        this.storageKey = 'kavican_study_data';
         this.init();
     }
 
-    async init() {
-        await this.loadData();
+    init() {
+        this.loadData();
         this.renderDays();
         this.setupEventListeners();
         this.modal = new bootstrap.Modal(document.getElementById('dayModal'));
         this.addDataButtons();
     }
 
-    async loadData() {
+    loadData() {
         try {
-            // JSON dosyasından veri yükle
-            const response = await fetch('study_data.json');
-            if (response.ok) {
-                const serverData = await response.json();
+            // localStorage'dan veri yükle
+            const storedData = localStorage.getItem(this.storageKey);
+            
+            if (storedData) {
+                const serverData = JSON.parse(storedData);
                 
                 this.days.forEach(day => {
                     if (serverData[day.id]) {
@@ -110,9 +112,9 @@ class StudyProgram {
                     }
                 });
                 
-                console.log('Veriler JSON dosyasından yüklendi');
+                console.log('Veriler localStorage\'dan yüklendi');
             } else {
-                console.log('JSON dosyası bulunamadı, boş verilerle başlatılıyor');
+                console.log('localStorage\'da veri bulunamadı, boş verilerle başlatılıyor');
                 this.initializeEmptyData();
             }
         } catch (error) {
@@ -128,43 +130,36 @@ class StudyProgram {
         });
     }
 
-    saveData(dayId) {
-        const day = this.days.find(d => d.id === dayId);
-        if (!day) return;
+    saveData(dayId = null) {
+        try {
+            // Tüm veriyi topla
+            const allData = {};
+            this.days.forEach(day => {
+                allData[day.id] = {
+                    entries: day.entries,
+                    completed: day.completed
+                };
+            });
 
-        // Tüm veriyi topla
-        const allData = {};
-        this.days.forEach(day => {
-            allData[day.id] = {
-                entries: day.entries,
-                completed: day.completed
-            };
-        });
-
-        // Kullanıcıya bilgi ver
-        this.showNotification('Veriler güncellendi! JSON dosyasını manuel güncelleyin.', 'info');
-        
-        console.log('Güncel veriler:', allData);
-        console.log('JSON dosyasını manuel olarak güncelleyin veya export/import kullanın.');
+            // localStorage'a kaydet
+            localStorage.setItem(this.storageKey, JSON.stringify(allData));
+            
+            // Kullanıcıya bilgi ver
+            if (dayId) {
+                this.showNotification(`${this.days.find(d => d.id === dayId).name} günü kaydedildi!`, 'success');
+            } else {
+                this.showNotification('Tüm veriler kaydedildi!', 'success');
+            }
+            
+            console.log('Veriler localStorage\'a kaydedildi');
+        } catch (error) {
+            console.error('Veri kaydetme hatası:', error);
+            this.showNotification('Veri kaydedilirken hata oluştu!', 'error');
+        }
     }
 
     addDataButtons() {
-        // Header'a veri yönetimi butonları ekle
-        const header = document.querySelector('header');
-        const buttonContainer = document.createElement('div');
-        buttonContainer.className = 'mt-3';
-        buttonContainer.innerHTML = `
-            <button class="btn btn-success btn-sm me-2" onclick="studyProgram.exportData()">
-                <i class="fas fa-download"></i> Verileri İndir
-            </button>
-            <button class="btn btn-warning btn-sm me-2" onclick="studyProgram.importData()">
-                <i class="fas fa-upload"></i> Verileri Yükle
-            </button>
-            <button class="btn btn-info btn-sm" onclick="studyProgram.showCurrentData()">
-                <i class="fas fa-eye"></i> Mevcut Veriler
-            </button>
-        `;
-        header.appendChild(buttonContainer);
+        // Veri yönetimi butonları kaldırıldı - basit arayüz için
     }
 
     exportData() {
@@ -210,10 +205,16 @@ class StudyProgram {
                             }
                         });
                         
+                        // localStorage'a kaydet
+                        this.saveData();
+                        
+                        // UI'ı güncelle
                         this.renderDays();
+                        
                         this.showNotification('Veriler başarıyla yüklendi!', 'success');
                     } catch (error) {
-                        this.showNotification('Dosya okuma hatası!', 'danger');
+                        console.error('Dosya okuma hatası:', error);
+                        this.showNotification('Dosya okunamadı! Geçerli bir JSON dosyası seçin.', 'error');
                     }
                 };
                 reader.readAsText(file);
@@ -221,6 +222,15 @@ class StudyProgram {
         };
         
         input.click();
+    }
+
+    clearData() {
+        if (confirm('Tüm verileri silmek istediğinizden emin misiniz? Bu işlem geri alınamaz!')) {
+            localStorage.removeItem(this.storageKey);
+            this.initializeEmptyData();
+            this.renderDays();
+            this.showNotification('Tüm veriler temizlendi!', 'success');
+        }
     }
 
     showCurrentData() {
@@ -234,7 +244,7 @@ class StudyProgram {
 
         const dataStr = JSON.stringify(allData, null, 2);
         
-        // Modal oluştur
+        // Modal ile göster
         const modal = document.createElement('div');
         modal.className = 'modal fade';
         modal.innerHTML = `
@@ -245,14 +255,10 @@ class StudyProgram {
                         <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                     </div>
                     <div class="modal-body">
-                        <p class="text-muted">Bu verileri kopyalayıp study_data.json dosyasına yapıştırabilirsiniz:</p>
-                        <textarea class="form-control" rows="20" readonly>${dataStr}</textarea>
+                        <pre style="background: #f8f9fa; padding: 15px; border-radius: 5px; max-height: 400px; overflow-y: auto;">${dataStr}</pre>
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Kapat</button>
-                        <button type="button" class="btn btn-primary" onclick="navigator.clipboard.writeText('${dataStr.replace(/'/g, "\\'")}').then(() => studyProgram.showNotification('Veriler kopyalandı!', 'success'))">
-                            <i class="fas fa-copy"></i> Kopyala
-                        </button>
                     </div>
                 </div>
             </div>
@@ -427,15 +433,55 @@ class StudyProgram {
         const day = this.days.find(d => d.id === this.currentDay);
         const entry = day.entries[entryId];
         
-        const newContent = prompt('Kaydını düzenle:', entry.content);
-        if (newContent !== null && newContent.trim() !== '') {
-            entry.content = newContent.trim();
-            entry.timestamp = new Date().toISOString(); // Düzenleme zamanını güncelle
-            
-            this.saveData(this.currentDay);
-            this.renderEntries();
-            this.showNotification('Kayıt güncellendi!', 'success');
-        }
+        // Düzenleme modal'ı oluştur
+        const editModal = document.createElement('div');
+        editModal.className = 'modal fade';
+        editModal.innerHTML = `
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Kaydı Düzenle</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="form-group">
+                            <label for="editEntryContent" class="form-label">Kayıt içeriği:</label>
+                            <textarea class="form-control" id="editEntryContent" rows="4">${entry.content}</textarea>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">İptal</button>
+                        <button type="button" class="btn btn-primary" id="saveEditBtn">Kaydet</button>
+                    </div>
+                </div>
+            </div>
+        `;
+        
+        document.body.appendChild(editModal);
+        const bootstrapEditModal = new bootstrap.Modal(editModal);
+        bootstrapEditModal.show();
+        
+        // Kaydet butonuna tıklama
+        document.getElementById('saveEditBtn').addEventListener('click', () => {
+            const newContent = document.getElementById('editEntryContent').value.trim();
+            if (newContent !== '') {
+                entry.content = newContent;
+                entry.timestamp = new Date().toISOString(); // Düzenleme zamanını güncelle
+                
+                this.saveData(this.currentDay);
+                this.renderEntries();
+                this.showNotification('Kayıt güncellendi!', 'success');
+                
+                bootstrapEditModal.hide();
+            } else {
+                alert('Lütfen bir şeyler yaz!');
+            }
+        });
+        
+        // Modal kapandığında DOM'dan kaldır
+        editModal.addEventListener('hidden.bs.modal', () => {
+            document.body.removeChild(editModal);
+        });
     }
 
     deleteEntry(entryId) {
