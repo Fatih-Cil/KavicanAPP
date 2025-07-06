@@ -555,8 +555,16 @@ class StudyProgram {
 
     generateWeeklyReport() {
         try {
+            // jsPDF kütüphanesinin yüklenip yüklenmediğini kontrol et
+            if (typeof window.jspdf === 'undefined') {
+                console.error('jsPDF kütüphanesi yüklenmedi!');
+                this.showNotification('PDF kütüphanesi yüklenemedi! Sayfayı yenileyin.', 'error');
+                return;
+            }
+
             // Haftalık verileri topla
             const weeklyData = this.getWeeklyData();
+            console.log('Haftalık veriler:', weeklyData);
             
             if (weeklyData.totalEntries === 0) {
                 this.showNotification('Bu hafta henüz kayıt bulunmuyor!', 'warning');
@@ -568,7 +576,8 @@ class StudyProgram {
             
         } catch (error) {
             console.error('Rapor oluşturma hatası:', error);
-            this.showNotification('Rapor oluşturulurken hata oluştu!', 'error');
+            console.error('Hata detayı:', error.message);
+            this.showNotification(`Rapor oluşturulurken hata oluştu: ${error.message}`, 'error');
         }
     }
 
@@ -627,11 +636,17 @@ class StudyProgram {
     }
 
     createWeeklyPDF(data) {
-        const { jsPDF } = window.jspdf;
-        const doc = new jsPDF();
+        try {
+            const { jsPDF } = window.jspdf;
+            if (!jsPDF) {
+                throw new Error('jsPDF kütüphanesi bulunamadı');
+            }
+            
+            const doc = new jsPDF();
+            console.log('PDF dokümanı oluşturuldu');
 
-        // Türkçe karakterler için font ayarı
-        doc.setFont('helvetica');
+            // Türkçe karakterler için font ayarı
+            doc.setFont('helvetica');
 
         // Başlık
         doc.setFontSize(20);
@@ -713,6 +728,11 @@ class StudyProgram {
         doc.save(fileName);
         
         this.showNotification('Haftalık rapor başarıyla indirildi!', 'success');
+        
+        } catch (error) {
+            console.error('PDF oluşturma hatası:', error);
+            throw new Error(`PDF oluşturulamadı: ${error.message}`);
+        }
     }
 
     wrapText(text, maxWidth) {
