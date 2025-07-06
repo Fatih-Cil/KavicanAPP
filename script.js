@@ -575,12 +575,23 @@ class StudyProgram {
     getWeeklyData() {
         const now = new Date();
         const startOfWeek = new Date(now);
-        startOfWeek.setDate(now.getDate() - now.getDay() + 1); // Pazartesi
+        
+        // Pazartesi gününü bul (0=Pazar, 1=Pazartesi, 6=Cumartesi)
+        const dayOfWeek = now.getDay();
+        const daysToMonday = dayOfWeek === 0 ? 6 : dayOfWeek - 1; // Pazar ise 6 gün geri, değilse dayOfWeek-1
+        
+        startOfWeek.setDate(now.getDate() - daysToMonday);
         startOfWeek.setHours(0, 0, 0, 0);
         
         const endOfWeek = new Date(startOfWeek);
         endOfWeek.setDate(startOfWeek.getDate() + 6); // Pazar
         endOfWeek.setHours(23, 59, 59, 999);
+
+        console.log('Haftalık tarih aralığı:', {
+            start: startOfWeek.toLocaleDateString('tr-TR'),
+            end: endOfWeek.toLocaleDateString('tr-TR'),
+            today: now.toLocaleDateString('tr-TR')
+        });
 
         const weeklyEntries = [];
         let totalEntries = 0;
@@ -589,6 +600,8 @@ class StudyProgram {
             if (day.entries && day.entries.length > 0) {
                 day.entries.forEach(entry => {
                     const entryDate = new Date(entry.timestamp);
+                    console.log('Kayıt tarihi:', entryDate.toLocaleDateString('tr-TR'), 'Gün:', day.name);
+                    
                     if (entryDate >= startOfWeek && entryDate <= endOfWeek) {
                         weeklyEntries.push({
                             day: day.name,
@@ -596,10 +609,13 @@ class StudyProgram {
                             content: entry.content
                         });
                         totalEntries++;
+                        console.log('Kayıt haftalık aralığa dahil:', entry.content.substring(0, 30) + '...');
                     }
                 });
             }
         });
+
+        console.log('Toplam haftalık kayıt:', totalEntries);
 
         return {
             startDate: startOfWeek,
