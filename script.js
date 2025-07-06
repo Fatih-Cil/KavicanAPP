@@ -658,30 +658,30 @@ class StudyProgram {
         // Başlık
         doc.setFontSize(20);
         doc.setFont('helvetica', 'bold');
-        doc.text('Kavican\'ın Haftalık Raporu', 105, 20, { align: 'center' });
+        doc.text('Kavican\'in Haftalik Raporu', 105, 20, { align: 'center' });
 
         // Tarih aralığı
         doc.setFontSize(12);
         doc.setFont('helvetica', 'normal');
-        const startDateStr = data.startDate.toLocaleDateString('tr-TR');
-        const endDateStr = data.endDate.toLocaleDateString('tr-TR');
+        const startDateStr = this.replaceTurkishChars(data.startDate.toLocaleDateString('tr-TR'));
+        const endDateStr = this.replaceTurkishChars(data.endDate.toLocaleDateString('tr-TR'));
         doc.text(`${startDateStr} - ${endDateStr}`, 105, 30, { align: 'center' });
 
         // İstatistikler
         doc.setFontSize(14);
         doc.setFont('helvetica', 'bold');
-        doc.text('Haftalık İstatistikler:', 20, 45);
+        doc.text('Haftalik Istatistikler:', 20, 45);
         
         doc.setFontSize(12);
         doc.setFont('helvetica', 'normal');
-        doc.text(`• Toplam Kayıt: ${data.totalEntries}`, 25, 55);
-        doc.text(`• Tamamlanan Gün: ${data.completedDays}/7`, 25, 65);
+        doc.text(`• Toplam Kayit: ${data.totalEntries}`, 25, 55);
+        doc.text(`• Tamamlanan Gun: ${data.completedDays}/7`, 25, 65);
 
         // Kayıtlar tablosu
         if (data.entries.length > 0) {
             doc.setFontSize(14);
             doc.setFont('helvetica', 'bold');
-            doc.text('Günlük Kayıtlar:', 20, 85);
+            doc.text('Gunluk Kayitlar:', 20, 85);
 
             // Tablo verilerini hazırla
             const tableData = data.entries.map(entry => {
@@ -699,7 +699,7 @@ class StudyProgram {
 
             doc.autoTable({
                 startY: 95,
-                head: [['Gün', 'Tarih', 'İçerik']],
+                head: [['Gun', 'Tarih', 'Icerik']],
                 body: tableData,
                 theme: 'grid',
                 headStyles: {
