@@ -645,8 +645,9 @@ class StudyProgram {
             const doc = new jsPDF();
             console.log('PDF dokümanı oluşturuldu');
 
-            // Türkçe karakterler için font ayarı
+            // Türkçe karakterler için font ayarı - UTF-8 desteği
             doc.setFont('helvetica');
+            doc.setLanguage('tr');
 
         // Başlık
         doc.setFontSize(20);
@@ -676,13 +677,13 @@ class StudyProgram {
             doc.setFont('helvetica', 'bold');
             doc.text('Günlük Kayıtlar:', 20, 85);
 
-            // Uzun metinleri satırlara böl
+            // Tablo verilerini hazırla
             const tableData = data.entries.map(entry => {
-                const wrappedContent = this.wrapText(entry.content, 50); // 50 karakter genişlik
+                console.log('Kayıt içeriği:', entry.content); // Debug için
                 return [
                     entry.day,
                     entry.date,
-                    wrappedContent
+                    entry.content // Direkt içeriği kullan, wrapText'i kaldır
                 ];
             });
 
@@ -698,7 +699,7 @@ class StudyProgram {
                 },
                 styles: {
                     fontSize: 9,
-                    cellPadding: 5,
+                    cellPadding: 8,
                     lineColor: [200, 200, 200],
                     lineWidth: 0.1
                 },
@@ -707,24 +708,38 @@ class StudyProgram {
                     1: { cellWidth: 35 },
                     2: { cellWidth: 130 }
                 },
+                // Basit hücre işleme - uzun metinler için otomatik satır geçişi
                 didParseCell: function(data) {
-                    // Hücre içeriğini otomatik satır geçişi ile ayarla
                     if (data.column.index === 2) { // İçerik sütunu
-                        // text'in string olduğundan emin ol
-                        if (typeof data.cell.text === 'string') {
-                            data.cell.text = data.cell.text.split('\n');
+                        // Metni otomatik olarak satırlara böl
+                        const text = data.cell.text || '';
+                        const maxLength = 60; // Satır başına maksimum karakter
+                        
+                        if (text.length > maxLength) {
+                            const words = text.split(' ');
+                            const lines = [];
+                            let currentLine = '';
+                            
+                            words.forEach(word => {
+                                if ((currentLine + ' ' + word).length <= maxLength) {
+                                    currentLine += (currentLine ? ' ' : '') + word;
+                                } else {
+                                    if (currentLine) lines.push(currentLine);
+                                    currentLine = word;
+                                }
+                            });
+                            
+                            if (currentLine) lines.push(currentLine);
+                            data.cell.text = lines;
                         } else {
-                            // Eğer string değilse, boş array yap
-                            data.cell.text = [];
+                            data.cell.text = [text];
                         }
                     }
                 },
                 willDrawCell: function(data) {
-                    // Hücre yüksekliğini otomatik ayarla
                     if (data.column.index === 2) {
-                        // text'in array olduğundan emin ol
                         const lines = Array.isArray(data.cell.text) ? data.cell.text.length : 1;
-                        data.row.height = Math.max(data.row.height, lines * 5);
+                        data.row.height = Math.max(data.row.height, lines * 6);
                     }
                 }
             });
