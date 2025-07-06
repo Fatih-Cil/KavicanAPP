@@ -687,14 +687,13 @@ class StudyProgram {
             const tableData = data.entries.map(entry => {
                 console.log('Kayıt içeriği:', entry.content); // Debug için
                 
-                // Türkçe karakterleri değiştir ve metni satırlara böl
+                // Türkçe karakterleri değiştir
                 const processedContent = this.replaceTurkishChars(entry.content);
-                const wrappedContent = this.wrapText(processedContent, 45);
                 
                 return [
                     entry.day,
                     entry.date,
-                    wrappedContent
+                    processedContent // Direkt işlenmiş içeriği kullan, wrapText'i kaldır
                 ];
             });
 
@@ -709,8 +708,8 @@ class StudyProgram {
                     fontSize: 10
                 },
                 styles: {
-                    fontSize: 9,
-                    cellPadding: 8,
+                    fontSize: 8,
+                    cellPadding: 6,
                     lineColor: [200, 200, 200],
                     lineWidth: 0.1
                 },
@@ -719,23 +718,14 @@ class StudyProgram {
                     1: { cellWidth: 35 },
                     2: { cellWidth: 130 }
                 },
-                // Hücre işleme - satır geçişlerini array'e çevir
+                // Basit hücre işleme - hiçbir özel işlem yapma
                 didParseCell: function(data) {
-                    if (data.column.index === 2) { // İçerik sütunu
-                        const text = data.cell.text || '';
-                        // Satır geçişlerini array'e çevir
-                        if (text.includes('\n')) {
-                            data.cell.text = text.split('\n');
-                        } else {
-                            data.cell.text = [text];
-                        }
-                    }
+                    // Hiçbir özel işlem yapma, jsPDF'in kendi işlemesine bırak
                 },
                 willDrawCell: function(data) {
                     if (data.column.index === 2) {
-                        // İçerik sütunu için yükseklik ayarla
-                        const lines = Array.isArray(data.cell.text) ? data.cell.text.length : 1;
-                        data.row.height = Math.max(data.row.height, lines * 6);
+                        // İçerik sütunu için sabit yükseklik
+                        data.row.height = Math.max(data.row.height, 20);
                     }
                 }
             });
