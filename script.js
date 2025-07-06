@@ -630,6 +630,9 @@ class StudyProgram {
         const { jsPDF } = window.jspdf;
         const doc = new jsPDF();
 
+        // Türkçe karakterler için font ayarı
+        doc.setFont('helvetica');
+
         // Başlık
         doc.setFontSize(20);
         doc.setFont('helvetica', 'bold');
@@ -658,11 +661,15 @@ class StudyProgram {
             doc.setFont('helvetica', 'bold');
             doc.text('Günlük Kayıtlar:', 20, 85);
 
-            const tableData = data.entries.map(entry => [
-                entry.day,
-                entry.date,
-                entry.content
-            ]);
+            // Uzun metinleri satırlara böl
+            const tableData = data.entries.map(entry => {
+                const wrappedContent = this.wrapText(entry.content, 50); // 50 karakter genişlik
+                return [
+                    entry.day,
+                    entry.date,
+                    wrappedContent
+                ];
+            });
 
             doc.autoTable({
                 startY: 95,
@@ -676,12 +683,27 @@ class StudyProgram {
                 },
                 styles: {
                     fontSize: 9,
-                    cellPadding: 3
+                    cellPadding: 5,
+                    lineColor: [200, 200, 200],
+                    lineWidth: 0.1
                 },
                 columnStyles: {
-                    0: { cellWidth: 30 },
-                    1: { cellWidth: 40 },
-                    2: { cellWidth: 120 }
+                    0: { cellWidth: 25 },
+                    1: { cellWidth: 35 },
+                    2: { cellWidth: 130 }
+                },
+                didParseCell: function(data) {
+                    // Hücre içeriğini otomatik satır geçişi ile ayarla
+                    if (data.column.index === 2) { // İçerik sütunu
+                        data.cell.text = data.cell.text.split('\n');
+                    }
+                },
+                willDrawCell: function(data) {
+                    // Hücre yüksekliğini otomatik ayarla
+                    if (data.column.index === 2) {
+                        const lines = data.cell.text.length;
+                        data.row.height = Math.max(data.row.height, lines * 5);
+                    }
                 }
             });
         }
@@ -691,6 +713,27 @@ class StudyProgram {
         doc.save(fileName);
         
         this.showNotification('Haftalık rapor başarıyla indirildi!', 'success');
+    }
+
+    wrapText(text, maxWidth) {
+        if (text.length <= maxWidth) return text;
+        
+        const words = text.split(' ');
+        const lines = [];
+        let currentLine = '';
+        
+        words.forEach(word => {
+            if ((currentLine + word).length <= maxWidth) {
+                currentLine += (currentLine ? ' ' : '') + word;
+            } else {
+                if (currentLine) lines.push(currentLine);
+                currentLine = word;
+            }
+        });
+        
+        if (currentLine) lines.push(currentLine);
+        
+        return lines.join('\n');
     }
 }
 
