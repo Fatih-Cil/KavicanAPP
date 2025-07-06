@@ -8,9 +8,11 @@ class StudyProgram {
                 name: 'Pazartesi',
                 icon: 'fas fa-book',
                 tasks: [
+                    'Egzersiz / Dans yap',
                     'Türkçe (Konu tekrarı yap + En az 20 soru çöz)',
-                    'İngilizce (Kelime tekrarı yap)',
-                    'Kitap oku (30 dk)'
+                    'Origami / El işi yap',
+                    'Türkçe hikaye kitabı oku (30 dk)',
+                    'Bu gün yaptıklarını günlük olarak sisteme kaydet'
                 ],
                 color: '#FF6B6B'
             },
@@ -19,8 +21,12 @@ class StudyProgram {
                 name: 'Salı',
                 icon: 'fas fa-gamepad',
                 tasks: [
-                    'Dışarıda çıkabilir yada bilgisayar oynayabilirsin',
-                    'İstersen güzel bir film izleyebilirsin'
+                    'Matematik (Konu tekrarı yap + En az 20 soru çöz)',
+                    'İngilizce kiptap okuma (30 dk)',
+                    'Boyama / Resim yap',
+                    'Bilgmece - Bulmaca',
+                    'Türkçe hikaye kitabı oku (30 dk)',
+                    'Bu gün yaptıklarını günlük olarak sisteme kaydet'
                 ],
                 color: '#4ECDC4'
             },
@@ -29,8 +35,11 @@ class StudyProgram {
                 name: 'Çarşamba',
                 icon: 'fas fa-calculator',
                 tasks: [
-                    'Matematik (Konu tekrarı yap + En az 20 soru çöz)',
-                    'İngilizce (Kelime tekrarı yap)'
+                    'Sosyal Bilgiler (Konu tekrarı yap + En az 20 soru çöz)',
+                    'Belgesel izle',
+                    'Satranç / Dama oyna',
+                    'Türkçe hikaye kitabı oku (30 dk)',
+                    'Bu gün yaptıklarını günlük olarak sisteme kaydet'
                 ],
                 color: '#45B7D1'
             },
@@ -39,10 +48,12 @@ class StudyProgram {
                 name: 'Perşembe',
                 icon: 'fas fa-running',
                 tasks: [
-                    'Spor, egzersiz yap',
-                    'Gezip dolaş',
+                    'Fen Bilimleri (Konu tekrarı yap + En az 20 soru çöz)',
+                    'Doğa yürüyüşü yap',
                     'İnternetsiz bir gün geçir',
-                    'Yeni oyun geliştir yada var olan oyunu evdekilerle oyna'
+                    'Yeni oyun geliştir yada geliştirdiğin oyunu evdekilerle oyna',
+                    'Türkçe hikaye kitabı oku (30 dk)',
+                    'Bu gün yaptıklarını günlük olarak sisteme kaydet'
                 ],
                 color: '#96CEB4'
             },
@@ -51,9 +62,11 @@ class StudyProgram {
                 name: 'Cuma',
                 icon: 'fas fa-flask',
                 tasks: [
-                    'Fen bilimleri (Konu tekrarı yap + En az 20 soru çöz)',
-                    'Amcanla satranç oyna, deden yada babanen ile yeni bir oyun geliştir',
-                    'İnternet serbest'
+                    'Din kültürü (Konu tekrarı yap + En az 20 soru çöz)',
+                    'İngilizce kiptap okuma (30 dk)',
+                    'Bilmece hafıza oyunu oyna',
+                    'Türkçe hikaye kitabı oku (30 dk)',
+                    'Bu gün yaptıklarını günlük olarak sisteme kaydet'
                 ],
                 color: '#FFEAA7'
             },
@@ -62,9 +75,10 @@ class StudyProgram {
                 name: 'Cumartesi',
                 icon: 'fas fa-globe',
                 tasks: [
-                    'Sosyal Bilgiler (Konu tekrarı yap - En az 20 soru çöz)',
+                    'Sinemaya git yada evde izle',
                     'Merak ettiğin bir konuda bir belgesel izle',
-                    'Kitap oku (30 dk)'
+                    'Türkçe hikaye kitabı oku (30 dk)',
+                    'Bu gün yaptıklarını günlük olarak sisteme kaydet'
                 ],
                 color: '#DDA0DD'
             },
@@ -73,8 +87,11 @@ class StudyProgram {
                 name: 'Pazar',
                 icon: 'fas fa-star',
                 tasks: [
-                    'Bugün özgür bir gün. Lunapark, normal park git, burger yiyebilirsin (annene söylememek kaydıyla)',
-                    'Kitap oku'
+                    'Lunaparka git',
+                    'Hamburger yiyebilirsin (izin almak kaydıyla)',
+                    'Bilmece hafıza oyunu oyna',
+                    'Türkçe hikaye kitabı oku (30 dk)',
+                    'Bu gün yaptıklarını günlük olarak sisteme kaydet'
                 ],
                 color: '#FFB6C1'
             }
