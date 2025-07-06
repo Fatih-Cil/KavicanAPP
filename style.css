@@ -280,6 +280,24 @@ body {
     color: #856404;
 }
 
+/* Haftalık Rapor Butonu */
+.btn-primary {
+    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+    border: none;
+    color: white;
+    font-weight: 600;
+    padding: 12px 24px;
+    border-radius: 25px;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+}
+
+.btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+    color: white;
+}
+
 /* Animations */
 @keyframes bounce {
     0%, 20%, 50%, 80%, 100% {

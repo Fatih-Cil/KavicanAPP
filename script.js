@@ -552,6 +552,130 @@ class StudyProgram {
             notification.remove();
         }, 3000);
     }
+
+    generateWeeklyReport() {
+        try {
+            // Haftalık verileri topla
+            const weeklyData = this.getWeeklyData();
+            
+            if (weeklyData.totalEntries === 0) {
+                this.showNotification('Bu hafta henüz kayıt bulunmuyor!', 'warning');
+                return;
+            }
+
+            // PDF oluştur
+            this.createWeeklyPDF(weeklyData);
+            
+        } catch (error) {
+            console.error('Rapor oluşturma hatası:', error);
+            this.showNotification('Rapor oluşturulurken hata oluştu!', 'error');
+        }
+    }
+
+    getWeeklyData() {
+        const now = new Date();
+        const startOfWeek = new Date(now);
+        startOfWeek.setDate(now.getDate() - now.getDay() + 1); // Pazartesi
+        startOfWeek.setHours(0, 0, 0, 0);
+        
+        const endOfWeek = new Date(startOfWeek);
+        endOfWeek.setDate(startOfWeek.getDate() + 6); // Pazar
+        endOfWeek.setHours(23, 59, 59, 999);
+
+        const weeklyEntries = [];
+        let totalEntries = 0;
+
+        this.days.forEach(day => {
+            if (day.entries && day.entries.length > 0) {
+                day.entries.forEach(entry => {
+                    const entryDate = new Date(entry.timestamp);
+                    if (entryDate >= startOfWeek && entryDate <= endOfWeek) {
+                        weeklyEntries.push({
+                            day: day.name,
+                            date: this.formatDate(entry.timestamp),
+                            content: entry.content
+                        });
+                        totalEntries++;
+                    }
+                });
+            }
+        });
+
+        return {
+            startDate: startOfWeek,
+            endDate: endOfWeek,
+            entries: weeklyEntries,
+            totalEntries: totalEntries,
+            completedDays: this.days.filter(day => day.completed).length
+        };
+    }
+
+    createWeeklyPDF(data) {
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF();
+
+        // Başlık
+        doc.setFontSize(20);
+        doc.setFont('helvetica', 'bold');
+        doc.text('Kavican\'ın Haftalık Raporu', 105, 20, { align: 'center' });
+
+        // Tarih aralığı
+        doc.setFontSize(12);
+        doc.setFont('helvetica', 'normal');
+        const startDateStr = data.startDate.toLocaleDateString('tr-TR');
+        const endDateStr = data.endDate.toLocaleDateString('tr-TR');
+        doc.text(`${startDateStr} - ${endDateStr}`, 105, 30, { align: 'center' });
+
+        // İstatistikler
+        doc.setFontSize(14);
+        doc.setFont('helvetica', 'bold');
+        doc.text('Haftalık İstatistikler:', 20, 45);
+        
+        doc.setFontSize(12);
+        doc.setFont('helvetica', 'normal');
+        doc.text(`• Toplam Kayıt: ${data.totalEntries}`, 25, 55);
+        doc.text(`• Tamamlanan Gün: ${data.completedDays}/7`, 25, 65);
+
+        // Kayıtlar tablosu
+        if (data.entries.length > 0) {
+            doc.setFontSize(14);
+            doc.setFont('helvetica', 'bold');
+            doc.text('Günlük Kayıtlar:', 20, 85);
+
+            const tableData = data.entries.map(entry => [
+                entry.day,
+                entry.date,
+                entry.content
+            ]);
+
+            doc.autoTable({
+                startY: 95,
+                head: [['Gün', 'Tarih', 'İçerik']],
+                body: tableData,
+                theme: 'grid',
+                headStyles: {
+                    fillColor: [255, 107, 107],
+                    textColor: 255,
+                    fontSize: 10
+                },
+                styles: {
+                    fontSize: 9,
+                    cellPadding: 3
+                },
+                columnStyles: {
+                    0: { cellWidth: 30 },
+                    1: { cellWidth: 40 },
+                    2: { cellWidth: 120 }
+                }
+            });
+        }
+
+        // PDF'i indir
+        const fileName = `kavican_haftalik_rapor_${data.startDate.toISOString().split('T')[0]}.pdf`;
+        doc.save(fileName);
+        
+        this.showNotification('Haftalık rapor başarıyla indirildi!', 'success');
+    }
 }
 
 // Global değişken
