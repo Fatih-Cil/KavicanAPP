@@ -645,9 +645,15 @@ class StudyProgram {
             const doc = new jsPDF();
             console.log('PDF dokümanı oluşturuldu');
 
-            // Türkçe karakterler için font ayarı - UTF-8 desteği
+            // Türkçe karakterler için font ayarı
             doc.setFont('helvetica');
-            doc.setLanguage('tr');
+            // UTF-8 desteği için encoding ayarı
+            doc.setProperties({
+                title: 'Kavican Haftalık Rapor',
+                subject: 'Haftalık Aktivite Raporu',
+                author: 'Kavican',
+                creator: 'Kavican App'
+            });
 
         // Başlık
         doc.setFontSize(20);
@@ -711,35 +717,17 @@ class StudyProgram {
                 // Basit hücre işleme - uzun metinler için otomatik satır geçişi
                 didParseCell: function(data) {
                     if (data.column.index === 2) { // İçerik sütunu
-                        // Metni otomatik olarak satırlara böl
+                        // Metni string olarak tut, array'e çevirme
                         const text = data.cell.text || '';
-                        const maxLength = 60; // Satır başına maksimum karakter
-                        
-                        if (text.length > maxLength) {
-                            const words = text.split(' ');
-                            const lines = [];
-                            let currentLine = '';
-                            
-                            words.forEach(word => {
-                                if ((currentLine + ' ' + word).length <= maxLength) {
-                                    currentLine += (currentLine ? ' ' : '') + word;
-                                } else {
-                                    if (currentLine) lines.push(currentLine);
-                                    currentLine = word;
-                                }
-                            });
-                            
-                            if (currentLine) lines.push(currentLine);
-                            data.cell.text = lines;
-                        } else {
-                            data.cell.text = [text];
-                        }
+                        data.cell.text = text; // Direkt string olarak bırak
                     }
                 },
                 willDrawCell: function(data) {
                     if (data.column.index === 2) {
-                        const lines = Array.isArray(data.cell.text) ? data.cell.text.length : 1;
-                        data.row.height = Math.max(data.row.height, lines * 6);
+                        // İçerik sütunu için daha fazla yükseklik
+                        const textLength = data.cell.text ? data.cell.text.length : 0;
+                        const estimatedLines = Math.ceil(textLength / 60); // 60 karakter = 1 satır
+                        data.row.height = Math.max(data.row.height, estimatedLines * 8);
                     }
                 }
             });
