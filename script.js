@@ -686,10 +686,15 @@ class StudyProgram {
             // Tablo verilerini hazırla
             const tableData = data.entries.map(entry => {
                 console.log('Kayıt içeriği:', entry.content); // Debug için
+                
+                // Türkçe karakterleri değiştir ve metni satırlara böl
+                const processedContent = this.replaceTurkishChars(entry.content);
+                const wrappedContent = this.wrapText(processedContent, 45);
+                
                 return [
                     entry.day,
                     entry.date,
-                    entry.content // Direkt içeriği kullan, wrapText'i kaldır
+                    wrappedContent
                 ];
             });
 
@@ -714,20 +719,23 @@ class StudyProgram {
                     1: { cellWidth: 35 },
                     2: { cellWidth: 130 }
                 },
-                // Basit hücre işleme - uzun metinler için otomatik satır geçişi
+                // Hücre işleme - satır geçişlerini array'e çevir
                 didParseCell: function(data) {
                     if (data.column.index === 2) { // İçerik sütunu
-                        // Metni string olarak tut, array'e çevirme
                         const text = data.cell.text || '';
-                        data.cell.text = text; // Direkt string olarak bırak
+                        // Satır geçişlerini array'e çevir
+                        if (text.includes('\n')) {
+                            data.cell.text = text.split('\n');
+                        } else {
+                            data.cell.text = [text];
+                        }
                     }
                 },
                 willDrawCell: function(data) {
                     if (data.column.index === 2) {
-                        // İçerik sütunu için daha fazla yükseklik
-                        const textLength = data.cell.text ? data.cell.text.length : 0;
-                        const estimatedLines = Math.ceil(textLength / 60); // 60 karakter = 1 satır
-                        data.row.height = Math.max(data.row.height, estimatedLines * 8);
+                        // İçerik sütunu için yükseklik ayarla
+                        const lines = Array.isArray(data.cell.text) ? data.cell.text.length : 1;
+                        data.row.height = Math.max(data.row.height, lines * 6);
                     }
                 }
             });
@@ -745,7 +753,25 @@ class StudyProgram {
         }
     }
 
-    wrapText(text, maxWidth) {
+    // Türkçe karakterleri İngilizce karşılıklarıyla değiştir
+    replaceTurkishChars(text) {
+        return text
+            .replace(/ş/g, 's')
+            .replace(/Ş/g, 'S')
+            .replace(/ı/g, 'i')
+            .replace(/İ/g, 'I')
+            .replace(/ğ/g, 'g')
+            .replace(/Ğ/g, 'G')
+            .replace(/ü/g, 'u')
+            .replace(/Ü/g, 'U')
+            .replace(/ö/g, 'o')
+            .replace(/Ö/g, 'O')
+            .replace(/ç/g, 'c')
+            .replace(/Ç/g, 'C');
+    }
+
+    // Metni 45 karakterde bir satırlara böl
+    wrapText(text, maxWidth = 45) {
         if (text.length <= maxWidth) return text;
         
         const words = text.split(' ');
@@ -753,7 +779,7 @@ class StudyProgram {
         let currentLine = '';
         
         words.forEach(word => {
-            if ((currentLine + word).length <= maxWidth) {
+            if ((currentLine + ' ' + word).length <= maxWidth) {
                 currentLine += (currentLine ? ' ' : '') + word;
             } else {
                 if (currentLine) lines.push(currentLine);
