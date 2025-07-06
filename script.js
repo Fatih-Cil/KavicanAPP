@@ -710,13 +710,20 @@ class StudyProgram {
                 didParseCell: function(data) {
                     // Hücre içeriğini otomatik satır geçişi ile ayarla
                     if (data.column.index === 2) { // İçerik sütunu
-                        data.cell.text = data.cell.text.split('\n');
+                        // text'in string olduğundan emin ol
+                        if (typeof data.cell.text === 'string') {
+                            data.cell.text = data.cell.text.split('\n');
+                        } else {
+                            // Eğer string değilse, boş array yap
+                            data.cell.text = [];
+                        }
                     }
                 },
                 willDrawCell: function(data) {
                     // Hücre yüksekliğini otomatik ayarla
                     if (data.column.index === 2) {
-                        const lines = data.cell.text.length;
+                        // text'in array olduğundan emin ol
+                        const lines = Array.isArray(data.cell.text) ? data.cell.text.length : 1;
                         data.row.height = Math.max(data.row.height, lines * 5);
                     }
                 }
